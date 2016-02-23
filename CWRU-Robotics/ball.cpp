@@ -14,8 +14,9 @@ namespace video
 		char filename[200];
 		string window_name = "video";  // create the name for the window
 		namedWindow(window_name, WINDOW_AUTOSIZE); // create the window 
-		Mat frame1; // original fram
+		Mat frame1; // original frame
 		Mat frame2; // gray frame
+		Mat frame3; // HSV frame, for detecting color 
 
 		while (true)    // forever loop
 		{
@@ -27,13 +28,29 @@ namespace video
 			medianBlur(frame2, frame2, 5);    // blur the frame
 			cvtColor(frame2, frame2, COLOR_BGR2GRAY);
 			vector<Vec3f> circles;  // what is vector <vec3f>
-			HoughCircles(frame2, circles, HOUGH_GRADIENT, 2, 32.0, 30, 550); // not sure about the input
+			HoughCircles(frame2, circles, HOUGH_GRADIENT, 
+					1,          // inverse ratio fo the accumulator resolution
+					10,          // minimum distance between circle center 
+					100,	    // higher threshold value for Canny 
+					100,         // accumulator threshold for the circle centers 
+					10,	    // minimum radius 
+					250);        // maximum radius
+
+			// change the original frame to HSV
+			cvtColor(frame1, frame3, COLOR_BGR2HSV);
 
 			for (size_t i = 0; i < circles.size(); i++)
 			{
 				Vec3i c = circles[i];
-				circle(frame1, Point(c[0], c[1]), c[2], Scalar(0, 2555555, 0), 3, LINE_AA);
-				circle(frame1, Point(c[0], c[1]), 2, Scalar(0, 255, 0), 3, LINE_AA);
+				circle(frame1, Point(c[0], c[1]), c[2], Scalar(0, 255, 0), 3, LINE_AA);
+				// find the HSV value of the center (c[0], c[1]) 
+				Vec3b pixel = frame3.at<Vec3b>(c[0], c[1]);
+				int H = pixel.val[0];
+				int S = pixel.val[1];
+				int V = pixel.val[2];
+				cout << "H: " << H << " " 
+				     << "S: " << S << " "
+				     << "V: " << V << endl;
 			}
 
 			imshow(window_name, frame1);
