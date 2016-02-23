@@ -32,9 +32,13 @@ namespace video
 					1,          // inverse ratio fo the accumulator resolution
 					10,          // minimum distance between circle center 
 					100,	    // higher threshold value for Canny 
-					100,         // accumulator threshold for the circle centers 
+					50,         // accumulator threshold for the circle centers 
 					10,	    // minimum radius 
 					250);        // maximum radius
+			// the trickiest value is the threshold for the circle centers, the smaller the value,
+			// the more circle the program will detect, thus we will have a lot of false circle. But
+			// if this value is big, say 500, we cannot detect anycircle. 50 is a reasonable value for 
+			// our ball
 
 			// change the original frame to HSV
 			cvtColor(frame1, frame3, COLOR_BGR2HSV);
